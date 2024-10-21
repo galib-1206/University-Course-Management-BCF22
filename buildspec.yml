@@ -1,0 +1,67 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18 # Specify the Docker version to use
+    commands:
+      - echo Installing source NPM dependencies...
+      - npm install # Or any other install commands you may need
+
+  pre_build:
+    commands:
+      - echo Retrieving parameters from Parameter Store...
+      - export AWS_REGION=$(aws ssm get-parameter --name /buet/hackathon/aws-region --with-decryption --output text --query "Parameter.Value")
+      - export ECR_REPOSITORY_URL=$(aws ssm get-parameter --name /buet/hackathon/ecr-repo-url --with-decryption --output text --query "Parameter.Value")
+      - export VERSION=$(aws ssm get-parameter --name /buet/hackathon/version --with-decryption --output text --query "Parameter.Value")
+      - export K8S_CLUSTER_NAME=$(aws ssm get-parameter --name /your/path/k8s_cluster_name --with-decryption --output text --query "Parameter.Value")
+      - export K8S_NAMESPACE=$(aws ssm get-parameter --name /buet/hackathon/k8s-namespace --with-decryption --output text --query "Parameter.Value")
+      - export STUDENT_SERVICE_APPLICATION_SETTINGS=$(aws ssm get-parameter --name /your/path/parameter_store_application_settings --with-decryption --output text --query "Parameter.Value")
+      - export STUDENT_SERVICE_DB_SETTINGS=$(aws ssm get-parameter --name /your/path/parameter_store_db_settings --with-decryption --output text --query "Parameter.Value")
+      - export COURSE_SERVICE_APPLICATION_SETTINGS=$(aws ssm get-parameter --name /your/path/parameter_store_application_settings --with-decryption --output text --query "Parameter.Value")
+      - export COURSE_SERVICE_DB_SETTINGS=$(aws ssm get-parameter --name /your/path/parameter_store_db_settings --with-decryption --output text --query "Parameter.Value")
+ 
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URL
+
+  build:
+    commands:
+      # Build and push Docker images for each service
+      - echo Building Docker image for Course Service...
+      - docker build -t $ECR_REPOSITORY_URL/student:$VERSION -f student/Dockerfile student
+      - docker push $ECR_REPOSITORY_URL/student:$VERSION
+      
+      - echo Building Docker image for Student Service...
+      - docker build -t $ECR_REPOSITORY_URL/course:$VERSION -f course/Dockerfile course
+      - docker push $ECR_REPOSITORY_URL/course:$VERSION
+
+  post_build:
+    commands:
+      - echo All services have been built and pushed to ECR.
+      - mkdir tmp
+      
+      - echo Getting application settings in tmp directory...
+      - aws ssm get-parameter --name $COURSE_APPLICATION_SETTINGS --with-decryption --output text --query "Parameter.Value" --region $AWS_REGION > ./tmp/course.env
+      - aws ssm get-parameter --name $STUDENT_APPLICATION_SETTINGS --with-decryption --output text --query "Parameter.Value" --region $AWS_REGION > ./tmp/student.env
+
+      - echo Getting database settings in tmp directory...
+      - aws ssm get-parameter --name $COURSE_DB_SETTINGS --with-decryption --output text --query "Parameter.Value" --region $AWS_REGION > ./tmp/course.json
+      - aws ssm get-parameter --name $STUDENT_DB_SETTINGS --with-decryption --output text --query "Parameter.Value" --region $AWS_REGION > ./tmp/student.json
+
+      - echo Creating K8s Namespace...
+      - kubectl create namespace $K8S_CLUSTER_NAME
+      
+      - echo Creating EKS credential...
+      - aws eks --region $AWS_REGION update-kubeconfig --name $K8S_CLUSTER_NAME
+
+      - echo Removing old secrets...
+      - kubectl -n $K8S_NAMESPACE delete secret course-db-settings course-app-settings --ignore-not-found
+      - kubectl -n $K8S_NAMESPACE delete secret student-db-settings student-app-settings --ignore-not-found
+
+      - echo Creating application secret in Kubernetes...
+      - kubectl -n $K8S_NAMESPACE create secret generic course-app-settings --from-env-file=./tmp/course.env
+      - kubectl -n $K8S_NAMESPACE create secret generic student-app-settings --from-env-file=./tmp/student.env
+
+      - echo Creating DB secret in Kubernetes...
+      - kubectl -n $K8S_NAMESPACE create secret generic course-db-settings --from-file=./tmp/course.json
+      - kubectl -n $K8S_NAMESPACE create secret generic student-db-settings --from-file=./tmp/student.json

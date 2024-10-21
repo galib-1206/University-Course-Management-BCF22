@@ -1,0 +1,25 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /app
+
+hooks:
+  BeforeInstall:
+    - location: scripts/get-ssm-parameters.sh
+      timeout: 300
+      runas: root
+      
+    - location: scripts/configure-aws-credentials.sh
+      timeout: 300
+      runas: root
+
+  AfterInstall:
+    - location: scripts/update-kubeconfig.sh
+      timeout: 300
+      runas: root
+
+  ApplicationStart:
+    - location: scripts/deploy-to-kubernetes.sh
+      timeout: 300
+      runas: root
