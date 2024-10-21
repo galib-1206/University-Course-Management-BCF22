@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'registration'
+    'registration_management'
 ]
 
 MIDDLEWARE = [
@@ -55,7 +55,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware'
 ]
 
-ROOT_URLCONF = 'registration_server.urls'
+ROOT_URLCONF = 'registration.urls'
 
 TEMPLATES = [
     {
@@ -86,7 +86,7 @@ DJANGO_SUPERUSER_EMAIL = config('DJANGO_SUPERUSER_EMAIL')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'studentdb',
+        'NAME': 'student_db',
         'USER': 'postgres',
         'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': '127.0.0.1',

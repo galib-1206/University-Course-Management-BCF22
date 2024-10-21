@@ -8,7 +8,7 @@ LABEL maintainer="Projects BD"
 WORKDIR /app/registration
 
 # Copy only the requirements first to leverage Docker cache for dependencies
-COPY ./registration/requirements.txt .
+COPY ./requirements.txt .
 
 # Install Python dependencies in one layer to reduce image size
 RUN pip install --no-cache-dir -r requirements.txt \
@@ -16,8 +16,10 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && pip install --no-cache-dir gunicorn
 
 # Copy the application source code
-COPY ./registration/ /registration/
+COPY . .
 
-RUN python manage.py create_admin
+# RUN python manage.py create_admin
+RUN python manage.py makemigrations
+RUN python manage.py migrate
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "registration.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "registration.wsgi:application"]

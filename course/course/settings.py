@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'course'
+    'course_management',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +56,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware'
 ]
 
-ROOT_URLCONF = 'course_server.urls'
+ROOT_URLCONF = 'course.urls'
 
 TEMPLATES = [
     {
@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'course.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'coursedb',
+        'NAME': 'course_db',
         'USER': 'postgres',
         'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': '127.0.0.1',
