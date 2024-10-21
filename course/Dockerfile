@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
 # Copy the application source code
 COPY . .
 
-RUN python manage.py makemigrations
-RUN python manage.py migrate
+# RUN python manage.py makemigrations
+# RUN python manage.py migrate
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "course.wsgi:application"]
