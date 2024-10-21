@@ -21,6 +21,7 @@ phases:
       - export COURSE_SERVICE_DB_SETTINGS=$(aws ssm get-parameter --name /buet/hackathon/course-service-db-settings --with-decryption --output text --query "Parameter.Value")
  
       - echo Logging in to Amazon ECR...
+      - echo $AWS_REGION $ECR_REPOSITORY_URL
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URL
 
   build:
