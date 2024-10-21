@@ -1,5 +1,17 @@
 version: 0.2
 
+env:
+  parameter-store:
+    AWS_REGION: "/buet/hackathon/aws-region"
+    ECR_REPOSITORY_URL: "/buet/hackathon/ecr-repo-url"
+    VERSION: "/buet/hackathon/version"
+    K8S_CLUSTER_NAME: "/buet/hackathon/k8s-cluster-name"
+    K8S_NAMESPACE: "/buet/hackathon/k8s-namespace"
+    STUDENT_SERVICE_APPLICATION_SETTINGS: "/buet/hackathon/student-service-application-settings"
+    STUDENT_SERVICE_DB_SETTINGS: "/buet/hackathon/student-service-db-settings"
+    COURSE_SERVICE_APPLICATION_SETTINGS: "/buet/hackathon/course-service-application-settings"
+    COURSE_SERVICE_DB_SETTINGS: "/buet/hackathon/course-service-db-settings"
+
 phases:
   install:
     runtime-versions:
@@ -9,17 +21,6 @@ phases:
 
   pre_build:
     commands:
-      - echo Retrieving parameters from Parameter Store...
-      - export AWS_REGION=$(aws ssm get-parameter --name /buet/hackathon/aws-region --with-decryption --output text --query "Parameter.Value")
-      - export ECR_REPOSITORY_URL=$(aws ssm get-parameter --name /buet/hackathon/ecr-repo-url --with-decryption --output text --query "Parameter.Value")
-      - export VERSION=$(aws ssm get-parameter --name /buet/hackathon/version --with-decryption --output text --query "Parameter.Value")
-      - export K8S_CLUSTER_NAME=$(aws ssm get-parameter --name /buet/hackathon/k8s-cluster-name --with-decryption --output text --query "Parameter.Value")
-      - export K8S_NAMESPACE=$(aws ssm get-parameter --name /buet/hackathon/k8s-namespace --with-decryption --output text --query "Parameter.Value")
-      - export STUDENT_SERVICE_APPLICATION_SETTINGS=$(aws ssm get-parameter --name /buet/hackathon/student-service-application-settings s --with-decryption --output text --query "Parameter.Value")
-      - export STUDENT_SERVICE_DB_SETTINGS=$(aws ssm get-parameter --name /buet/hackathon/student-service-db-settings --with-decryption --output text --query "Parameter.Value")
-      - export COURSE_SERVICE_APPLICATION_SETTINGS=$(aws ssm get-parameter --name /buet/hackathon/course-service-application-settings --with-decryption --output text --query "Parameter.Value")
-      - export COURSE_SERVICE_DB_SETTINGS=$(aws ssm get-parameter --name /buet/hackathon/course-service-db-settings --with-decryption --output text --query "Parameter.Value")
- 
       - echo Logging in to Amazon ECR...
       - echo $AWS_REGION $ECR_REPOSITORY_URL
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URL
@@ -40,12 +41,12 @@ phases:
       - mkdir tmp
       
       - echo Getting application settings in tmp directory...
-      - aws ssm get-parameter --name $COURSE_APPLICATION_SETTINGS --with-decryption --output text --query "Parameter.Value" --region $AWS_REGION > ./tmp/course.env
-      - aws ssm get-parameter --name $STUDENT_APPLICATION_SETTINGS --with-decryption --output text --query "Parameter.Value" --region $AWS_REGION > ./tmp/student.env
+      - echo $COURSE_SERVICE_APPLICATION_SETTINGS > ./tmp/course.env
+      - echo $STUDENT_SERVICE_APPLICATION_SETTINGS > ./tmp/student.env
 
       - echo Getting database settings in tmp directory...
-      - aws ssm get-parameter --name $COURSE_DB_SETTINGS --with-decryption --output text --query "Parameter.Value" --region $AWS_REGION > ./tmp/course.json
-      - aws ssm get-parameter --name $STUDENT_DB_SETTINGS --with-decryption --output text --query "Parameter.Value" --region $AWS_REGION > ./tmp/student.json
+      - echo $COURSE_SERVICE_DB_SETTINGS > ./tmp/course.json
+      - echo $STUDENT_SERVICE_DB_SETTINGS > ./tmp/student.json
 
       - echo Creating K8s Namespace...
       - kubectl create namespace $K8S_CLUSTER_NAME
