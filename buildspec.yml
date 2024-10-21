@@ -5,7 +5,7 @@ phases:
     runtime-versions:
       python: 3.11
     commands:
-      - Starting build phases...
+      - echo Starting build phases...
 
   pre_build:
     commands:
