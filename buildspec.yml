@@ -51,9 +51,6 @@ phases:
       - echo Creating EKS credential...
       - aws eks --region $AWS_REGION update-kubeconfig --name $K8S_CLUSTER_NAME
 
-      - echo Creating K8s Namespace...
-      - kubectl create namespace $K8S_CLUSTER_NAME
-
       - echo Removing old secrets...
       - kubectl -n $K8S_NAMESPACE delete secret course-db-settings course-app-settings --ignore-not-found
       - kubectl -n $K8S_NAMESPACE delete secret student-db-settings student-app-settings --ignore-not-found
