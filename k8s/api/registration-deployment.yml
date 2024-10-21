@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: dev
+  name: registration-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: registration
+  template:
+    metadata:
+      labels:
+        app: registration
+    spec:
+      containers:
+      - name: registration
+        image: $ECR_REPOSITORY_URL/registration:$VERSION
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: registration-app-settings
+        env:
+        - name: DATABASES
+          valueFrom:
+            secretKeyRef:
+              name: registration-db-settings
+              key: registration.json
+        resources:
+          requests:
+            memory: "128Mi"  # Minimal memory request
+            cpu: "5m"        # Minimal CPU request
+          limits:
+            memory: "256Mi"  # Minimal memory limit
+            cpu: "250m"      # Minimal CPU limit
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: dev
+  name: registration-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+  selector:
+    app: registration
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: dev
+  name: registration-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+      - registration.dev.example.com
+    secretName: registration-dev-tls
+  rules:
+  - host: registration.dev.example.com
+    http:
+      paths:
+      - path: /v1/registration
+        pathType: Prefix
+        backend:
+          service:
+            name: registration-service
+            port:
+              number: 80

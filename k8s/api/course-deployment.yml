@@ -1,0 +1,82 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: dev
+  name: course-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: course
+  template:
+    metadata:
+      labels:
+        app: course
+    spec:
+      containers:
+      - name: course
+        image: $ECR_REPOSITORY_URL/course:$VERSION
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: course-app-settings
+        env:
+        - name: DATABASES
+          valueFrom:
+            secretKeyRef:
+              name: course-db-settings
+              key: course.json
+        resources:
+          requests:
+            memory: "128Mi"  # Minimal memory request
+            cpu: "5m"        # Minimal CPU request
+          limits:
+            memory: "256Mi"  # Minimal memory limit
+            cpu: "250m"      # Minimal CPU limit
+        imagePullPolicy: Always
+     
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: dev
+  name: course-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: course
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: dev
+  name: course-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+#     nginx.ingress.kubernetes.io/use-regex: "true"  # Optional, if regex is used in paths
+#     nginx.ingress.kubernetes.io/rewrite-target: /$1  # Optional, for handling path rewrites
+spec:
+  tls:
+  - hosts:
+      - course.dev.example.com
+    secretName: course-dev-tls
+  rules:
+  - host: course.dev.example.com
+    http:
+      paths:
+      - path: /v1/course
+        pathType: Prefix
+        backend:
+          service:
+            name: course-service
+            port:
+              number: 80
