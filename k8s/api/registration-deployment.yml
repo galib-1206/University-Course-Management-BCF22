@@ -15,27 +15,27 @@ spec:
         app: registration
     spec:
       containers:
-      - name: registration
-        image: $ECR_REPOSITORY_URL/registration:$VERSION
-        ports:
-        - containerPort: 8000
-        envFrom:
-        - secretRef:
-            name: registration-app-settings
-        env:
-        - name: DATABASES
-          valueFrom:
-            secretKeyRef:
-              name: registration-db-settings
-              key: registration.json
-        resources:
-          requests:
-            memory: "128Mi"  # Minimal memory request
-            cpu: "5m"        # Minimal CPU request
-          limits:
-            memory: "256Mi"  # Minimal memory limit
-            cpu: "250m"      # Minimal CPU limit
-        imagePullPolicy: Always
+        - name: registration
+          image: $ECR_REPOSITORY_URL/registration:$VERSION
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: registration-app-settings
+          env:
+            - name: DATABASES
+              valueFrom:
+                secretKeyRef:
+                  name: registration-db-settings
+                  key: registration.json
+          resources:
+            requests:
+              memory: "128Mi" # Minimal memory request
+              cpu: "5m" # Minimal CPU request
+            limits:
+              memory: "256Mi" # Minimal memory limit
+              cpu: "250m" # Minimal CPU limit
+          imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
@@ -45,9 +45,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 80
-    targetPort: 8000
-    protocol: TCP
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
   selector:
     app: registration
 ---
@@ -63,17 +63,17 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
-  - hosts:
-      - registration.dev.example.com
-    secretName: registration-dev-tls
+    - hosts:
+        - registration.dev.example.com
+      secretName: registration-dev-tls
   rules:
-  - host: registration.dev.example.com
-    http:
-      paths:
-      - path: /v1/registration
-        pathType: Prefix
-        backend:
-          service:
-            name: registration-service
-            port:
-              number: 80
+    - host: registration.dev.example.com
+      http:
+        paths:
+          - path: /v1/registration
+            pathType: Prefix
+            backend:
+              service:
+                name: registration-service
+                port:
+                  number: 80

@@ -13,12 +13,12 @@ phases:
       - export AWS_REGION=$(aws ssm get-parameter --name /buet/hackathon/aws-region --with-decryption --output text --query "Parameter.Value")
       - export ECR_REPOSITORY_URL=$(aws ssm get-parameter --name /buet/hackathon/ecr-repo-url --with-decryption --output text --query "Parameter.Value")
       - export VERSION=$(aws ssm get-parameter --name /buet/hackathon/version --with-decryption --output text --query "Parameter.Value")
-      - export K8S_CLUSTER_NAME=$(aws ssm get-parameter --name /your/path/k8s_cluster_name --with-decryption --output text --query "Parameter.Value")
+      - export K8S_CLUSTER_NAME=$(aws ssm get-parameter --name /buet/hackathon/k8s-cluster-name --with-decryption --output text --query "Parameter.Value")
       - export K8S_NAMESPACE=$(aws ssm get-parameter --name /buet/hackathon/k8s-namespace --with-decryption --output text --query "Parameter.Value")
-      - export STUDENT_SERVICE_APPLICATION_SETTINGS=$(aws ssm get-parameter --name /your/path/parameter_store_application_settings --with-decryption --output text --query "Parameter.Value")
-      - export STUDENT_SERVICE_DB_SETTINGS=$(aws ssm get-parameter --name /your/path/parameter_store_db_settings --with-decryption --output text --query "Parameter.Value")
-      - export COURSE_SERVICE_APPLICATION_SETTINGS=$(aws ssm get-parameter --name /your/path/parameter_store_application_settings --with-decryption --output text --query "Parameter.Value")
-      - export COURSE_SERVICE_DB_SETTINGS=$(aws ssm get-parameter --name /your/path/parameter_store_db_settings --with-decryption --output text --query "Parameter.Value")
+      - export STUDENT_SERVICE_APPLICATION_SETTINGS=$(aws ssm get-parameter --name /buet/hackathon/student-service-application-settings s --with-decryption --output text --query "Parameter.Value")
+      - export STUDENT_SERVICE_DB_SETTINGS=$(aws ssm get-parameter --name /buet/hackathon/student-service-db-settings --with-decryption --output text --query "Parameter.Value")
+      - export COURSE_SERVICE_APPLICATION_SETTINGS=$(aws ssm get-parameter --name /buet/hackathon/course-service-application-settings --with-decryption --output text --query "Parameter.Value")
+      - export COURSE_SERVICE_DB_SETTINGS=$(aws ssm get-parameter --name /buet/hackathon/course-service-db-settings --with-decryption --output text --query "Parameter.Value")
  
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URL

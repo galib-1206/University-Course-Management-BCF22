@@ -15,28 +15,28 @@ spec:
         app: course
     spec:
       containers:
-      - name: course
-        image: $ECR_REPOSITORY_URL/course:$VERSION
-        ports:
-        - containerPort: 8080
-        envFrom:
-        - secretRef:
-            name: course-app-settings
-        env:
-        - name: DATABASES
-          valueFrom:
-            secretKeyRef:
-              name: course-db-settings
-              key: course.json
-        resources:
-          requests:
-            memory: "128Mi"  # Minimal memory request
-            cpu: "5m"        # Minimal CPU request
-          limits:
-            memory: "256Mi"  # Minimal memory limit
-            cpu: "250m"      # Minimal CPU limit
-        imagePullPolicy: Always
-     
+        - name: course
+          image: $ECR_REPOSITORY_URL/course:$VERSION
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: course-app-settings
+          env:
+            - name: DATABASES
+              valueFrom:
+                secretKeyRef:
+                  name: course-db-settings
+                  key: course.json
+          resources:
+            requests:
+              memory: "128Mi" # Minimal memory request
+              cpu: "5m" # Minimal CPU request
+            limits:
+              memory: "256Mi" # Minimal memory limit
+              cpu: "250m"
+          imagePullPolicy: Always
+
 ---
 apiVersion: v1
 kind: Service
@@ -46,9 +46,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 80
-    targetPort: 8080
-    protocol: TCP
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
   selector:
     app: course
 ---
@@ -66,17 +66,17 @@ metadata:
 #     nginx.ingress.kubernetes.io/rewrite-target: /$1  # Optional, for handling path rewrites
 spec:
   tls:
-  - hosts:
-      - course.dev.example.com
-    secretName: course-dev-tls
+    - hosts:
+        - course.dev.example.com
+      secretName: course-dev-tls
   rules:
-  - host: course.dev.example.com
-    http:
-      paths:
-      - path: /v1/course
-        pathType: Prefix
-        backend:
-          service:
-            name: course-service
-            port:
-              number: 80
+    - host: course.dev.example.com
+      http:
+        paths:
+          - path: /v1/course
+            pathType: Prefix
+            backend:
+              service:
+                name: course-service
+                port:
+                  number: 80
