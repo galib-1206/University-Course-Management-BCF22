@@ -84,9 +84,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'course_db',
-        'USER': 'postgres',
+        'USER': 'galibbs23',
         'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': '127.0.0.1',
+        'HOST': 'buet-hackathon-development-rds-postgresql.ch4me46os90l.ap-south-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
