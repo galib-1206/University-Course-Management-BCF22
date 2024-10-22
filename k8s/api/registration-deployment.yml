@@ -27,7 +27,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: registration-db-settings
-                  key: registration.json
+                  key: student.json
           resources:
             requests:
               memory: "128Mi" # Minimal memory request
