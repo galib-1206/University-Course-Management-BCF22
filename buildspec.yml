@@ -11,16 +11,26 @@ env:
     STUDENT_SERVICE_DB_SETTINGS: "/buet/hackathon/student-service-db-settings"
     COURSE_SERVICE_APPLICATION_SETTINGS: "/buet/hackathon/course-service-application-settings"
     COURSE_SERVICE_DB_SETTINGS: "/buet/hackathon/course-service-db-settings"
+    DOCKER_USERNAME: "/buet/hackathon/docker-hub-username"
+    DOCKER_PASSWORD: "/buet/hackathon/docker-hub-password"
 
 phases:
   install:
-    runtime-versions:
-      python: 3.11
     commands:
-      - echo Starting build phases...
+      - echo Installing app dependencies...
+      - curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/kubectl
+      - chmod +x ./kubectl
+      - mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+      - echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+      - echo 'Check kubectl version'
+      - kubectl version --short --client
+      - chmod +x eks_cicd/prereqs.sh
+      - sh eks_cicd/prereqs.sh
 
   pre_build:
     commands:
+      - echo Logging in to Docker Hub...
+      - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
       - echo Logging in to Amazon ECR...
       - echo $AWS_REGION $ECR_REPOSITORY_URL
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URL
@@ -28,20 +38,20 @@ phases:
   build:
     commands:
       - echo Building Docker image for Course Service...
-      - docker build -t registration ./registration
-      - docker tag registration:$VERSION $ECR_REPOSITORY_URL:$VERSION
-      - docker push $ECR_REPOSITORY_URL/course:$VERSION
-      
+      - docker build -t student ./registration
+      - docker tag student:latest $ECR_REPOSITORY_URL/student:latest
+      - docker push $ECR_REPOSITORY_URL/student:latest
+
       - echo Building Docker image for Student Service...
       - docker build -t course ./course
-      - docker tag course:latest $$ECR_REPOSITORY_URL:$VERSION
-      - docker push $ECR_REPOSITORY_URL/course:$VERSION
+      - docker tag course:latest $ECR_REPOSITORY_URL/course:latest
+      - docker push $ECR_REPOSITORY_URL/course:latest
 
   post_build:
     commands:
       - echo All services have been built and pushed to ECR.
       - mkdir tmp
-      
+
       - echo Getting application settings in tmp directory...
       - echo $COURSE_SERVICE_APPLICATION_SETTINGS > ./tmp/course.env
       - echo $STUDENT_SERVICE_APPLICATION_SETTINGS > ./tmp/student.env
@@ -49,18 +59,37 @@ phases:
       - echo Getting database settings in tmp directory...
       - echo $COURSE_SERVICE_DB_SETTINGS > ./tmp/course.json
       - echo $STUDENT_SERVICE_DB_SETTINGS > ./tmp/student.json
-      
+
       - echo Creating EKS credential...
       - aws eks --region $AWS_REGION update-kubeconfig --name $K8S_CLUSTER_NAME
+      - echo check config
+      - kubectl config view --minify
+      - echo check kubectl access
+      - kubectl get svc
 
       - echo Removing old secrets...
       - kubectl -n $K8S_NAMESPACE delete secret course-db-settings course-app-settings --ignore-not-found
-      - kubectl -n $K8S_NAMESPACE delete secret student-db-settings student-app-settings --ignore-not-found
+      - kubectl -n $K8S_NAMESPACE delete secret registration-db-settings registration-app-settings --ignore-not-found
 
       - echo Creating application secret in Kubernetes...
       - kubectl -n $K8S_NAMESPACE create secret generic course-app-settings --from-env-file=./tmp/course.env
-      - kubectl -n $K8S_NAMESPACE create secret generic student-app-settings --from-env-file=./tmp/student.env
+      - kubectl -n $K8S_NAMESPACE create secret generic registration-app-settings --from-env-file=./tmp/student.env
 
       - echo Creating DB secret in Kubernetes...
       - kubectl -n $K8S_NAMESPACE create secret generic course-db-settings --from-file=./tmp/course.json
-      - kubectl -n $K8S_NAMESPACE create secret generic student-db-settings --from-file=./tmp/student.json
+      - kubectl -n $K8S_NAMESPACE create secret generic registration-db-settings --from-file=./tmp/student.json
+
+      - echo Build completed on `date`
+      
+      - echo "Deploying Course Service..."
+      - kubectl apply -f k8s/api/course-deployment.yml
+      - kubectl rollout restart deployment/course-deployment -n $K8S_NAMESPACE
+
+      - echo "Deploying Registration Service..."
+      - kubectl apply -f k8s/api/registration-deployment.yml
+      - kubectl rollout restart deployment/registration-deployment -n $K8S_NAMESPACE
+
+      - echo "Checking pod status..."
+      - kubectl get pods -n $K8S_NAMESPACE
+
+      - echo "Kubernetes deployment completed on `date`"

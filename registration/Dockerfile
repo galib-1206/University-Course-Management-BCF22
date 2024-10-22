@@ -1,5 +1,5 @@
 # Use a smaller, official base image
-FROM python:3.12.5-alpine3.20
+FROM python:3.12-alpine
 
 # Metadata of the Image
 LABEL maintainer="Projects BD"
@@ -20,6 +20,6 @@ COPY . .
 # RUN python manage.py makemigrations
 # RUN python manage.py migrate
 
-RUN python manage.py create_admin
+# RUN python manage.py create_admin
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "registration.wsgi:application"]

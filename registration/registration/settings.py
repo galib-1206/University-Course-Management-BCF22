@@ -87,18 +87,18 @@ DJANGO_SUPERUSER_EMAIL = config('DJANGO_SUPERUSER_EMAIL')
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'student_db',
-        'USER': 'galibbs23',
-        'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': 'buet-hackathon-development-rds-postgresql.ch4me46os90l.ap-south-1.rds.amazonaws.com',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'student_db',
+#         'USER': 'galibbs23',
+#         'PASSWORD': config('DATABASE_PASSWORD'),
+#         'HOST': 'buet-hackathon-development-rds-postgresql.ch4me46os90l.ap-south-1.rds.amazonaws.com',
+#         'PORT': '5432',
+#     }
+# }
 
-DATABASES = config.DATABASES
+DATABASES = config('DATABASES')
 
 AUTH_PASSWORD_VALIDATORS = [
     {
