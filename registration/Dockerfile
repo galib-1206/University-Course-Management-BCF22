@@ -20,6 +20,6 @@ COPY . .
 # RUN python manage.py makemigrations
 # RUN python manage.py migrate
 
-RUN python manage.py create_admin
+# RUN python manage.py create_admin
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "registration.wsgi:application"]
