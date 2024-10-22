@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: registration
-          image: $ECR_REPOSITORY_URL/registration:$VERSION
+          image: 863518452741.dkr.ecr.ap-south-1.amazonaws.com/student:latest
           ports:
             - containerPort: 8000
           envFrom:
