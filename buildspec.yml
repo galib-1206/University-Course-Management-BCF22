@@ -69,15 +69,15 @@ phases:
 
       - echo Removing old secrets...
       - kubectl -n $K8S_NAMESPACE delete secret course-db-settings course-app-settings --ignore-not-found
-      - kubectl -n $K8S_NAMESPACE delete secret student-db-settings student-app-settings --ignore-not-found
+      - kubectl -n $K8S_NAMESPACE delete secret registration-db-settings student-app-settings --ignore-not-found
 
       - echo Creating application secret in Kubernetes...
       - kubectl -n $K8S_NAMESPACE create secret generic course-app-settings --from-env-file=./tmp/course.env
-      - kubectl -n $K8S_NAMESPACE create secret generic student-app-settings --from-env-file=./tmp/student.env
+      - kubectl -n $K8S_NAMESPACE create secret generic registration-app-settings --from-env-file=./tmp/student.env
 
       - echo Creating DB secret in Kubernetes...
       - kubectl -n $K8S_NAMESPACE create secret generic course-db-settings --from-file=./tmp/course.json
-      - kubectl -n $K8S_NAMESPACE create secret generic student-db-settings --from-file=./tmp/student.json
+      - kubectl -n $K8S_NAMESPACE create secret generic registration-db-settings --from-file=./tmp/student.json
 
       - echo Build completed on `date`
       - kubectl apply -f k8s/api/course-deployment.yml
