@@ -81,9 +81,9 @@ phases:
 
       - echo Build completed on `date`
       - kubectl apply -f k8s/api/course-deployment.yml
-      - kubectl rollout restart -f k8s/api/course-deployment.yml
+      # - kubectl rollout restart -f k8s/api/course-deployment.yml
 
       - kubectl apply -f k8s/api/registration-deployment.yml
-      - kubectl rollout restart -f k8s/api/registration-deployment.yml
+      # - kubectl rollout restart -f k8s/api/registration-deployment.yml
 
       - Kubernetes deployment completed on `date`
