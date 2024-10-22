@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import json
 from pathlib import Path
 from decouple import config
 import os
@@ -98,7 +99,7 @@ DJANGO_SUPERUSER_EMAIL = config('DJANGO_SUPERUSER_EMAIL')
 #     }
 # }
 
-DATABASES = config('DATABASES')
+DATABASES = json.loads(os.getenv('DATABASES'))
 
 AUTH_PASSWORD_VALIDATORS = [
     {

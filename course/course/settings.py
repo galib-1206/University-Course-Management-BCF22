@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import json
 from pathlib import Path
 from decouple import config 
 import os
@@ -91,7 +92,7 @@ WSGI_APPLICATION = 'course.wsgi.application'
 #     }
 # }
 
-DATABASES = config('DATABASES')
+DATABASES = json.loads(os.getenv('DATABASES'))
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
