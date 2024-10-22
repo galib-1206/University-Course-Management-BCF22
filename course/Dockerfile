@@ -1,5 +1,5 @@
 # Use a smaller, official base image
-FROM python:3.12.5-alpine3.20
+FROM python:3.12-alpine
 
 # Metadata of the Image
 LABEL maintainer="Projects BD"
