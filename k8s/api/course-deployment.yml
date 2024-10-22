@@ -41,7 +41,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: dev
+  namespace: buet-hackathon-namespace
   name: course-service
 spec:
   type: ClusterIP
@@ -55,7 +55,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  namespace: dev
+  namespace: buet-hackathon-namespace
   name: course-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -67,10 +67,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - course.dev.example.com
-      secretName: course-dev-tls
+        - course.buet-hackathon-namespace.example.com
+      secretName: course-buet-hackathon-namespace-tls
   rules:
-    - host: course.dev.example.com
+    - host: course.buet-hackathon-namespace.example.com
       http:
         paths:
           - path: /v1/course
