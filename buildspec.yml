@@ -38,14 +38,14 @@ phases:
   build:
     commands:
       - echo Building Docker image for Course Service...
-      - docker build -t registration ./registration
-      - docker tag registration:$VERSION $ECR_REPOSITORY_URL:$VERSION
-      - docker push $ECR_REPOSITORY_URL/course:$VERSION
+      - docker build -t student ./registration
+      - docker tag student:latest $ECR_REPOSITORY_URL/student:latest
+      - docker push $ECR_REPOSITORY_URL/student:latest
       
       - echo Building Docker image for Student Service...
       - docker build -t course ./course
-      - docker tag course:latest $$ECR_REPOSITORY_URL:$VERSION
-      - docker push $ECR_REPOSITORY_URL/course:$VERSION
+      - docker tag course:latest $ECR_REPOSITORY_URL/course:latest
+      - docker push $ECR_REPOSITORY_URL/course:latest
 
   post_build:
     commands:
