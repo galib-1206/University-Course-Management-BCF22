@@ -86,4 +86,4 @@ phases:
       - kubectl apply -f k8s/api/registration-deployment.yml
       # - kubectl rollout restart -f k8s/api/registration-deployment.yml
 
-      - Kubernetes deployment completed on `date`
+      - echo Kubernetes deployment completed on `date`
