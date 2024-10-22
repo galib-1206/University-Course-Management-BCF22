@@ -11,6 +11,8 @@ env:
     STUDENT_SERVICE_DB_SETTINGS: "/buet/hackathon/student-service-db-settings"
     COURSE_SERVICE_APPLICATION_SETTINGS: "/buet/hackathon/course-service-application-settings"
     COURSE_SERVICE_DB_SETTINGS: "/buet/hackathon/course-service-db-settings"
+    DOCKER_USERNAME: "/buet/hackathon/docker-hub-username"
+    DOCKER_PASSWORD: "/buet/hackathon/docker-hub-password"
 
 phases:
   install:
@@ -27,6 +29,8 @@ phases:
 
   pre_build:
     commands:
+      - echo Logging in to Docker Hub...
+      - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
       - echo Logging in to Amazon ECR...
       - echo $AWS_REGION $ECR_REPOSITORY_URL
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URL
