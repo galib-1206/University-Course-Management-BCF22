@@ -69,7 +69,7 @@ phases:
 
       - echo Removing old secrets...
       - kubectl -n $K8S_NAMESPACE delete secret course-db-settings course-app-settings --ignore-not-found
-      - kubectl -n $K8S_NAMESPACE delete secret registration-db-settings student-app-settings --ignore-not-found
+      - kubectl -n $K8S_NAMESPACE delete secret registration-db-settings registration-app-settings --ignore-not-found
 
       - echo Creating application secret in Kubernetes...
       - kubectl -n $K8S_NAMESPACE create secret generic course-app-settings --from-env-file=./tmp/course.env
