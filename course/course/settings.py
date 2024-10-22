@@ -80,18 +80,18 @@ WSGI_APPLICATION = 'course.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'course_db',
-        'USER': 'galibbs23',
-        'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': 'buet-hackathon-development-rds-postgresql.ch4me46os90l.ap-south-1.rds.amazonaws.com',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'course_db',
+#         'USER': config('USER'),
+#         'PASSWORD': config('PASSWORD'),
+#         'HOST': config('HOST'),
+#         'PORT': '5432',
+#     }
+# }
 
-
+DATABASES = config.DATABASES
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
