@@ -2,7 +2,7 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from course.course import settings
+from django.conf import settings
 
 
 def main():
