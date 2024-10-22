@@ -78,3 +78,12 @@ phases:
       - echo Creating DB secret in Kubernetes...
       - kubectl -n $K8S_NAMESPACE create secret generic course-db-settings --from-file=./tmp/course.json
       - kubectl -n $K8S_NAMESPACE create secret generic student-db-settings --from-file=./tmp/student.json
+
+      - echo Build completed on `date`
+      - kubectl apply -f k8s/api/course-deployment.yml
+      - kubectl rollout restart -f k8s/api/course-deployment.yml
+
+      - kubectl apply -f k8s/api/registration-deployment.yml
+      - kubectl rollout restart -f k8s/api/registration-deployment.yml
+
+      - Kubernetes deployment completed on `date`
